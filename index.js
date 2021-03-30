@@ -12,7 +12,7 @@ const readlineSync  = require('readline-sync');
 const delay = require('delay');
 
 //DELAY BIAR GAK REQUEST TIMEOUT ANJENG.
-const DANTOI = 100;
+const DANTOI = 500;
 // MEMEMK BAPAKKAU
 
 var tanyaFile = readlineSync.question('CC FILE LIST >> ');
@@ -22,28 +22,41 @@ var listfile = fs.readFileSync(tanyaFile).toString().replace(/\r\n|\r|\n/g, " ")
 const callback = async (error,response,body)=>{
     if (!error && response.statusCode == 200) {
 
+        try{
         var parsing = JSON.parse(body);
         
+        if(typeof parsing == 'object'){
         var brand = parsing.scheme.toUpperCase();
         var type = parsing.type.toUpperCase();
         var bank = parsing.bank.name;
         var bankUri = parsing.bank.url;
         var country = parsing.country.alpha2;
         var flag = parsing.country.emoji;
-        var countryName = parsing.country.name.toUpperCase();
+        var countryName = parsing.country.name;
+        var countryName  = countryName.toUpperCase();
         var bins = response.request.headers.tobin;
         var fullcc = response.request.headers.full;
 
         lolcatjs.options.seed = Math.round(Math.random() * 1000);
         lolcatjs.options.colors = true;
+        var dantoi=`${bins} => [${country}]  ${brand} - ${type} - ${bank} - ${countryName}[${country}] - ${bankUri} `;
         lolcatjs.fromString(`${bins} => [${country}]  ${brand} - ${type} - ${bank} - ${countryName}[${country}] - ${bankUri} `);
         fs.appendFileSync('output/'+country+'.txt',fullcc+'\n');
+        fs.appendFileSync('output/'+country+'_with_BINS.txt', dantoi+'\n');
+
+        }
+         }catch(e)
+    {
+        console.log('ERROR SKIP ');
+    }
     }else{
       
          delay(100);
         var bins = response.request.headers.full;
         checkBin(bins);
     }
+
+
 
 }
 const checkBin = async (bin) =>{
